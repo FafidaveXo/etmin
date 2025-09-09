@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriMarket - Sheep & Goat Sale</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Header -->
+    <header class="bg-green-600 text-white p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">AgriMarket</h1>
+            <nav>
+                <a href="#home" class="px-3 hover:underline">Home</a>
+                <a href="#listings" class="px-3 hover:underline">Animals</a>
+                <a href="#sell" class="px-3 hover:underline">Sell Your Animal</a>
+                <a href="#contact" class="px-3 hover:underline">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="bg-green-200 text-center py-20">
+        <h2 class="text-4xl font-bold mb-4">Buy and Sell Sheep & Goats Easily</h2>
+        <p class="text-lg mb-6">Find the best livestock near you or list your own animals for sale.</p>
+        <a href="#listings" class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700">View Animals</a>
+    </section>
+
+    <!-- Animals Listing -->
+    <section id="listings" class="container mx-auto py-12">
+        <h2 class="text-3xl font-bold text-center mb-8">Available Animals</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Dynamic listings will appear here -->
+        </div>
+    </section>
+
+    <!-- Sell Your Animal -->
+    <section id="sell" class="bg-green-50 py-12">
+        <div class="container mx-auto max-w-lg">
+            <h2 class="text-3xl font-bold text-center mb-6">Sell Your Animal</h2>
+            <form class="bg-white p-6 rounded shadow space-y-4">
+                <div>
+                    <label class="block mb-1 font-bold">Animal Type</label>
+                    <select name="type" class="w-full border p-2 rounded">
+                        <option>Sheep</option>
+                        <option>Goat</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block mb-1 font-bold">Animal Name/ID</label>
+                    <input type="text" name="name" class="w-full border p-2 rounded" placeholder="Enter name or ID">
+                </div>
+                <div>
+                    <label class="block mb-1 font-bold">Age (years)</label>
+                    <input type="number" name="age" class="w-full border p-2 rounded" placeholder="Enter age">
+                </div>
+                <div>
+                    <label class="block mb-1 font-bold">Weight (kg)</label>
+                    <input type="number" name="weight" class="w-full border p-2 rounded" placeholder="Enter weight">
+                </div>
+                <div>
+                    <label class="block mb-1 font-bold">Price (Birr)</label>
+                    <input type="number" name="price" class="w-full border p-2 rounded" placeholder="Enter price">
+                </div>
+                <div>
+                    <label class="block mb-1 font-bold">Contact Info</label>
+                    <input type="text" name="contact" class="w-full border p-2 rounded" placeholder="Phone or Email">
+                </div>
+                <div>
+                    <label class="block mb-1 font-bold">Image URL (optional)</label>
+                    <input type="text" name="image" class="w-full border p-2 rounded" placeholder="Link to image">
+                </div>
+                <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 w-full">Submit Listing</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="container mx-auto py-12">
+        <h2 class="text-3xl font-bold text-center mb-6">Contact Us</h2>
+        <p class="text-center mb-6">For inquiries, reach us at <a href="mailto:info@agrimarket.com" class="text-green-600 hover:underline">info@agrimarket.com</a></p>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-green-600 text-white p-6 text-center">
+        &copy; 2025 AgriMarket. All rights reserved.
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Telegram WebApp Initialization
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Make app full screen
+        console.log('Telegram WebApp initialized', tg.initData);
+
+        // Google Apps Script Web App URL
+        const APPS_SCRIPT_URL = 'const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwYbsZ0EpAuohmJhFOUBdN2BCZXg7eG2D3zUAYkpMFWDUAbl2u_erMV6Y8o4tvqnSBI/exec'; // replace with your URL'; // Replace with your URL
+
+        // Form Submission
+        const form = document.querySelector('form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                type: form.querySelector('select[name="type"]').value,
+                name: form.querySelector('input[name="name"]').value,
+                age: form.querySelector('input[name="age"]').value,
+                weight: form.querySelector('input[name="weight"]').value,
+                price: form.querySelector('input[name="price"]').value,
+                contact: form.querySelector('input[name="contact"]').value,
+                image: form.querySelector('input[name="image"]').value
+            };
+
+            const response = await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const result = await response.json();
+            if(result.status === 'success') {
+                alert('Listing submitted successfully!');
+                form.reset();
+                loadListings(); // Refresh listings
+            } else {
+                alert('Failed to submit');
+            }
+        });
+
+        // Load Listings Dynamically
+        async function loadListings() {
+            const res = await fetch(APPS_SCRIPT_URL);
+            const listings = await res.json();
+
+            const container = document.querySelector('#listings .grid');
+            container.innerHTML = '';
+
+            listings.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-6 rounded shadow';
+                card.innerHTML = `
+                    <img src="${item.Image || 'https://via.placeholder.com/400'}" alt="${item.Name}" class="rounded mb-4">
+                    <h3 class="text-xl font-bold mb-2">${item.Name}</h3>
+                    <p>Type: ${item['Animal Type']}</p>
+                    <p>Age: ${item.Age} years</p>
+                    <p>Weight: ${item.Weight} kg</p>
+                    <p>Price: ${item.Price} Birr</p>
+                    <a href="#contact" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Contact Seller</a>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Initial load
+        loadListings();
+    </script>
+
+</body>
+</html>
+
